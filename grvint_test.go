@@ -8,31 +8,12 @@ import (
 
 func TestRoundtrip(t *testing.T) {
 
-	for i := 0; i < 10000; i++ {
+	input := makeInput(4096)
 
-		var u32s [4]uint32
-
-		b := rand.Intn(256)
-
-		for j := 0; j < 4; j++ {
-			size := int(b & 3)
-			switch size {
-			case 0:
-				u32s[j] = uint32(rand.Intn(1 << 8))
-			case 1:
-				u32s[j] = 1<<8 + uint32(rand.Intn((1<<16)-(1<<8)))
-			case 2:
-				u32s[j] = 1<<16 + uint32(rand.Intn((1<<24)-(1<<16)))
-			case 3:
-				u32s[j] = 1<<24 + uint32(rand.Intn((1<<32)-(1<<24)))
-			}
-
-			b >>= 2
-		}
-
+	for len(input) > 0 {
+		u32s := input[:4]
 		var dst [17]byte
-
-		d := Encode4(dst[:], u32s[:])
+		d := Encode4(dst[:], u32s)
 
 		if bytesUsed[d[0]] != len(d) {
 			t.Errorf("bytesUsed[%d]=%d, want %d\n", d[0], bytesUsed[d[0]], len(d))
@@ -41,9 +22,11 @@ func TestRoundtrip(t *testing.T) {
 		var got [4]uint32
 		Decode4(got[:], dst[:])
 
-		if !reflect.DeepEqual(u32s, got) {
+		if !reflect.DeepEqual(u32s, got[:]) {
 			t.Fatalf("failed roundtrip: got=%x, want %x (src[0]=%08b)\n", got, u32s, dst[0])
 		}
+
+		input = input[4:]
 	}
 }
 
