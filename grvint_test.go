@@ -56,18 +56,21 @@ func makeInput(n int) []uint32 {
 
 		var u32s [4]uint32
 
-		b := rand.Intn(256)
-
 		for j := 0; j < 4; j++ {
-			size := int(b & 3)
-			switch size {
-			case 0:
+
+			b := uint32(rand.Int31())
+
+			size := nlz(b)
+
+			switch {
+			// case size == 0: none, because b > 0
+			case size == 1:
 				u32s[j] = uint32(rand.Intn(1 << 8))
-			case 1:
+			case size == 2:
 				u32s[j] = 1<<8 + uint32(rand.Intn((1<<16)-(1<<8)))
-			case 2:
+			case size == 3:
 				u32s[j] = 1<<16 + uint32(rand.Intn((1<<24)-(1<<16)))
-			case 3:
+			default:
 				u32s[j] = 1<<24 + uint32(rand.Intn((1<<32)-(1<<24)))
 			}
 
