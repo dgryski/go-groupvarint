@@ -47,13 +47,10 @@ func TestRoundtrip(t *testing.T) {
 	}
 }
 
-func makeInput(n int) []byte {
-
+func makeInput(n int) []uint32 {
 	rand.Seed(0)
 
-	var input []byte
-
-	var padding int
+	var input []uint32
 
 	for i := 0; i < n; i++ {
 
@@ -77,28 +74,53 @@ func makeInput(n int) []byte {
 			b >>= 2
 		}
 
+		input = append(input, u32s[:]...)
+	}
+
+	return input
+}
+
+func encodeGroupVarint(input []uint32) []byte {
+
+	var r []byte
+
+	var padding int
+	for len(input) > 0 {
 		var dst [17]byte
 
-		d := Encode4(dst[:], u32s[:])
+		d := Encode4(dst[:], input)
 
 		padding = 17 - len(d)
 
-		input = append(input, d...)
+		r = append(r, d...)
+
+		input = input[4:]
 	}
 
 	// must be able to load 17 bytes from start of final block
 	for i := 0; i < padding; i++ {
-		input = append(input, 0)
+		r = append(r, 0)
 	}
 
-	return input
+	return r
+}
+
+func encodeVarint(input []uint32) []byte {
+	var r []byte
+	for _, u32 := range input {
+		var dst [5]byte
+		d := Encode1(dst[:], u32)
+		r = append(r, d...)
+	}
+
+	return r
 }
 
 var sink uint32
 
 func BenchmarkDecode(b *testing.B) {
 
-	input := makeInput(4096)
+	input := encodeGroupVarint(makeInput(4096))
 
 	b.ResetTimer()
 
@@ -109,6 +131,38 @@ func BenchmarkDecode(b *testing.B) {
 			Decode4(dst[:], src)
 			sink += dst[0] + dst[1] + dst[2] + dst[3]
 			src = src[bytesUsed[src[0]]:]
+		}
+	}
+}
+
+func BenchmarkVint(b *testing.B) {
+
+	input := encodeVarint(makeInput(4096))
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		src := input
+		for len(src) > 0 {
+			var dst uint32
+			used := Decode1(&dst, src)
+			sink += dst
+			src = src[used:]
+		}
+	}
+}
+
+func BenchmarkBaseline(b *testing.B) {
+
+	input := makeInput(4096)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		src := input
+		for len(src) > 0 {
+			sink += src[0] + src[1] + src[2] + src[3]
+			src = src[4:]
 		}
 	}
 }
