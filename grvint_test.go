@@ -37,30 +37,29 @@ func makeInput(n int) []uint32 {
 
 	for i := 0; i < n; i++ {
 
-		var u32s [4]uint32
-
 		for j := 0; j < 4; j++ {
 
 			b := uint32(rand.Int31())
 
 			size := nlz(b)
 
-			switch {
-			// case size == 0: none, because b > 0
-			case size == 1:
-				u32s[j] = uint32(rand.Intn(1 << 8))
-			case size == 2:
-				u32s[j] = 1<<8 + uint32(rand.Intn((1<<16)-(1<<8)))
-			case size == 3:
-				u32s[j] = 1<<16 + uint32(rand.Intn((1<<24)-(1<<16)))
+			var u32 uint32
+
+			switch size {
+			// case 0: none, because b > 0
+			case 1:
+				u32 = uint32(rand.Intn(1 << 8))
+			case 2:
+				u32 = 1<<8 + uint32(rand.Intn((1<<16)-(1<<8)))
+			case 3:
+				u32 = 1<<16 + uint32(rand.Intn((1<<24)-(1<<16)))
 			default:
-				u32s[j] = 1<<24 + uint32(rand.Intn((1<<32)-(1<<24)))
+				u32 = 1<<24 + uint32(rand.Intn((1<<32)-(1<<24)))
 			}
 
-			b >>= 2
+			input = append(input, u32)
 		}
 
-		input = append(input, u32s[:]...)
 	}
 
 	return input
