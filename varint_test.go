@@ -8,7 +8,7 @@ func TestRoundtripVarint(t *testing.T) {
 	for _, u32 := range input {
 		var dst [5]byte
 
-		d := Encode1(dst[:0], u32)
+		d := Encode1(dst[:], u32)
 
 		var n uint32
 		l := Decode1(&n, d)
