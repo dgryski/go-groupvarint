@@ -15,8 +15,8 @@ func TestRoundtrip(t *testing.T) {
 		var dst [17]byte
 		d := Encode4(dst[:], u32s)
 
-		if bytesUsed[d[0]] != len(d) {
-			t.Errorf("bytesUsed[%d]=%d, want %d\n", d[0], bytesUsed[d[0]], len(d))
+		if BytesUsed[d[0]] != len(d) {
+			t.Errorf("BytesUsed[%d]=%d, want %d\n", d[0], BytesUsed[d[0]], len(d))
 		}
 
 		var got [4]uint32
@@ -115,7 +115,7 @@ func BenchmarkDecode(b *testing.B) {
 			var dst [4]uint32
 			Decode4(dst[:], src)
 			sink += dst[0] + dst[1] + dst[2] + dst[3]
-			src = src[bytesUsed[src[0]]:]
+			src = src[BytesUsed[src[0]]:]
 		}
 	}
 }

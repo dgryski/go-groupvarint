@@ -12,7 +12,7 @@ func generateBitsUsed() {
 
 	fmt.Println("package groupvarint")
 	fmt.Println()
-	fmt.Println("var bytesUsed = []int{")
+	fmt.Println("var BytesUsed = []int{")
 
 	for i := 0; i < 256; i++ {
 		b := byte(i)
