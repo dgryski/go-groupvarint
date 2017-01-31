@@ -9,7 +9,7 @@ TEXT ·Decode4(SB),4,$0-48
 	MOVQ src+24(FP), BX
 	MOVQ ·sseMasks+0(SB), CX
 	MOVOU 1(BX), X0
-	BYTE $0x48; BYTE $0x0F; BYTE $0xB6; BYTE $0x1B // MOVZX rbx, byte [rbx]
+	MOVBQZX 0(BX), BX
 	SHLQ $4, BX
 	ADDQ CX, BX
 	MOVO 0(BX), X1
