@@ -1,6 +1,7 @@
 package groupvarint
 
 import (
+	"math/bits"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -41,7 +42,7 @@ func makeInput(n int) []uint32 {
 
 			b := uint32(rand.Int31())
 
-			size := nlz(b)
+			size := bits.LeadingZeros32(b)
 
 			var u32 uint32
 
